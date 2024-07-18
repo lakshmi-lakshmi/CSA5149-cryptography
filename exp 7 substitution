@@ -1,0 +1,63 @@
+from collections import Counter
+
+ciphertext = "53‡‡†305))6*;4826)4‡.)4‡);806*;48†8¶60))85;;]8*;:‡*8†83 (88)5*†;46(;88*96*?;8)*‡(;485);5*†2:*‡(;4956*2(5*—4)8¶8* ;4069285);)6†8)4‡‡;1(‡9;48081;8:8‡1;48†85;4)485†528806*81 (‡9;48;(88;4(‡?34;48)4‡;161;:188;‡?"
+
+# Step 1: Frequency Analysis
+counter = Counter(ciphertext)
+print("Character frequencies:", counter)
+
+# Step 2: Guessing common words
+# The following is a manual process of guessing and substituting common words
+
+# Helper function to replace characters based on a mapping
+def substitute(text, mapping):
+    return ''.join(mapping.get(c, c) for c in text)
+
+# Initial guesses based on frequency analysis
+# Let's assume the most common character is 'e'
+mapping = {'8': 'e'}
+
+# Guess '†' is 't' and '‡' is 'h' based on common patterns
+mapping.update({'†': 't', '‡': 'h'})
+
+# Print the partially decoded message
+decoded_message = substitute(ciphertext, mapping)
+print("Partially decoded message:", decoded_message)
+
+# Manually refining guesses
+# Let's assume '4' is 'o' and '6' is 'n'
+mapping.update({'4': 'o', '6': 'n'})
+
+# Re-print the partially decoded message with more guesses
+decoded_message = substitute(ciphertext, mapping)
+print("Partially decoded message:", decoded_message)
+
+# Let's continue this process by guessing more characters
+# Assume '5' is 'a', '0' is 'd', '3' is 'r', '2' is 's', '1' is 'i', '9' is 'c'
+mapping.update({'5': 'a', '0': 'd', '3': 'r', '2': 's', '1': 'i', '9': 'c'})
+
+# Re-print the partially decoded message with more guesses
+decoded_message = substitute(ciphertext, mapping)
+print("Partially decoded message:", decoded_message)
+
+# We can continue refining our guesses by looking at common patterns and words
+
+# Final decoding attempt
+# Update mapping with refined guesses
+mapping.update({
+    ')': ' ',  # space
+    '(': 'y',
+    '*': 'u',
+    ';': 'm',
+    ':': 'l',
+    '.': 'w',
+    '?': 'f',
+    '¶': 'g',
+    ']': 'v',
+    '—': 'b',
+    ',': 'p'  # Assume ',' is 'p' based on pattern
+})
+
+# Final decoding
+decoded_message = substitute(ciphertext, mapping)
+print("Fully decoded message:", decoded_message)
