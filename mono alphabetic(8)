@@ -1,0 +1,53 @@
+def generate_cipher_sequence(keyword):
+    keyword = keyword.upper()
+    seen = set()
+    cipher = []
+
+    # Add characters from the keyword to the cipher sequence
+    for char in keyword:
+        if char not in seen and char.isalpha():
+            seen.add(char)
+            cipher.append(char)
+
+    # Add remaining letters of the alphabet
+    for char in range(ord('A'), ord('Z') + 1):
+        if chr(char) not in seen:
+            cipher.append(chr(char))
+
+    return ''.join(cipher)
+
+def encrypt(plaintext, cipher):
+    encrypted = []
+    plaintext = plaintext.upper()
+
+    for char in plaintext:
+        if char.isalpha():
+            encrypted.append(cipher[ord(char) - ord('A')])
+        else:
+            encrypted.append(char)
+
+    return ''.join(encrypted)
+
+def decrypt(ciphertext, cipher):
+    decrypted = []
+    ciphertext = ciphertext.upper()
+
+    for char in ciphertext:
+        if char.isalpha():
+            decrypted.append(chr(cipher.index(char) + ord('A')))
+        else:
+            decrypted.append(char)
+
+    return ''.join(decrypted)
+
+# Example usage
+keyword = "CIPHER"
+cipher_sequence = generate_cipher_sequence(keyword)
+print("Cipher sequence:", cipher_sequence)
+
+plaintext = "HELLO WORLD"
+encrypted_text = encrypt(plaintext, cipher_sequence)
+print("Encrypted text:", encrypted_text)
+
+decrypted_text = decrypt(encrypted_text, cipher_sequence)
+print("Decrypted text:", decrypted_text)
