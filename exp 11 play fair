@@ -1,0 +1,9 @@
+import math
+
+# Calculate the factorial of 25
+num_keys = math.factorial(25)
+
+# Calculate the approximate power of 2
+approx_power_of_2 = math.log2(num_keys)
+
+print(f"The number of possible keys for the Playfair cipher is approximately 2^{approx_power_of_2:.2f}")
