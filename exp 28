@@ -1,0 +1,42 @@
+import random
+
+# Generate a large prime number q and a base a
+def generate_parameters():
+    q = 23  # Example prime number (should be large in practice)
+    a = 5   # Example base (should be a primitive root modulo q)
+    return q, a
+
+# Alice's side
+def alice(q, a):
+    x_A = random.randint(1, q-1)  # Alice's secret number
+    A = pow(a, x_A, q)            # Compute A = a^x_A mod q
+    return A, x_A
+
+# Bob's side
+def bob(q, a):
+    x_B = random.randint(1, q-1)  # Bob's secret number
+    B = pow(a, x_B, q)            # Compute B = a^x_B mod q
+    return B, x_B
+
+# Compute shared secret
+def compute_shared_secret(value, secret, q):
+    return pow(value, secret, q)
+
+# Example usage
+if __name__ == "__main__":
+    q, a = generate_parameters()
+
+    # Alice generates her public value and secret
+    A, x_A = alice(q, a)
+    print("Alice sends:", A)
+
+    # Bob generates his public value and secret
+    B, x_B = bob(q, a)
+    print("Bob sends:", B)
+
+    # Both compute the shared secret
+    shared_secret_alice = compute_shared_secret(B, x_A, q)
+    shared_secret_bob = compute_shared_secret(A, x_B, q)
+
+    print("Shared secret computed by Alice:", shared_secret_alice)
+    print("Shared secret computed by Bob:", shared_secret_bob)
