@@ -1,0 +1,48 @@
+# Step 1: Determine p and q
+n = 3599
+
+def find_prime_factors(n):
+    for i in range(2, int(n**0.5) + 1):
+        if n % i == 0:
+            return i, n // i
+
+p, q = find_prime_factors(n)
+print(f"p = {p}, q = {q}")
+
+# Step 2: Calculate φ(n)
+phi_n = (p - 1) * (q - 1)
+print(f"phi(n) = {phi_n}")
+
+# Step 3: Find the multiplicative inverse of e modulo φ(n)
+def extended_gcd(a, b):
+    if b == 0:
+        return a, 1, 0
+    gcd, x1, y1 = extended_gcd(b, a % b)
+    x = y1
+    y = x1 - (a // b) * y1
+    return gcd, x, y
+
+e = 31
+gcd, d, _ = extended_gcd(e, phi_n)
+d = d % phi_n
+if d < 0:
+    d += phi_n
+print(f"Private key d = {d}")
+
+# Step 4: Implement RSA encryption and decryption
+def rsa_encrypt(plaintext, e, n):
+    return [pow(ord(char), e, n) for char in plaintext]
+
+def rsa_decrypt(ciphertext, d, n):
+    return ''.join([chr(pow(char, d, n)) for char in ciphertext])
+
+# Test RSA encryption and decryption
+public_key = (e, n)
+private_key = (d, n)
+
+message = "HELLO"
+ciphertext = rsa_encrypt(message, *public_key)
+print(f"Encrypted: {ciphertext}")
+
+decrypted_message = rsa_decrypt(ciphertext, *private_key)
+print(f"Decrypted: {decrypted_message}")
