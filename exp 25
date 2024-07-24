@@ -1,0 +1,60 @@
+from math import gcd
+
+# Step 1: Find a common factor
+def find_common_factor(n, plaintext_blocks):
+    for block in plaintext_blocks:
+        common_factor = gcd(n, block)
+        if common_factor != 1 and common_factor != n:
+            return common_factor
+    return None
+
+# Step 2: Factor n
+def factor_n(n, common_factor):
+    p = common_factor
+    q = n // p
+    return p, q
+
+# Step 3: Calculate φ(n)
+def calculate_phi(p, q):
+    return (p - 1) * (q - 1)
+
+# Step 4: Find the private key using the extended Euclidean algorithm
+def extended_gcd(a, b):
+    if b == 0:
+        return a, 1, 0
+    gcd, x1, y1 = extended_gcd(b, a % b)
+    x = y1
+    y = x1 - (a // b) * y1
+    return gcd, x, y
+
+def find_private_key(e, phi):
+    gcd, d, _ = extended_gcd(e, phi)
+    d = d % phi
+    if d < 0:
+        d += phi
+    return d
+
+# Test data
+n = 3599
+e = 31
+plaintext_blocks = [12, 23, 34, 45, 56, 67, 78, 89, 90]  # Assume one of these blocks has a common factor with n
+
+# Find common factor
+common_factor = find_common_factor(n, plaintext_blocks)
+if common_factor:
+    print(f"Common factor found: {common_factor}")
+
+    # Factor n
+    p, q = factor_n(n, common_factor)
+    print(f"p = {p}, q = {q}")
+
+    # Calculate φ(n)
+    phi_n = calculate_phi(p, q)
+    print(f"φ(n) = {phi_n}")
+
+    # Find private key
+    d = find_private_key(e, phi_n)
+    print(f"Private key d = {d}")
+
+else:
+    print("No common factor found in the given plaintext blocks.")
