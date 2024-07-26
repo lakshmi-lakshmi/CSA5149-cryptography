@@ -1,0 +1,68 @@
+# Install the pycryptodome library
+!pip install pycryptodome
+
+# Import necessary modules
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
+from Crypto.Random import get_random_bytes
+
+BLOCK_SIZE = AES.block_size
+
+def encrypt_ecb(plaintext, key):
+    cipher = AES.new(key, AES.MODE_ECB)
+    padded_plaintext = pad(plaintext, BLOCK_SIZE)
+    ciphertext = cipher.encrypt(padded_plaintext)
+    return ciphertext
+
+def decrypt_ecb(ciphertext, key):
+    cipher = AES.new(key, AES.MODE_ECB)
+    padded_plaintext = cipher.decrypt(ciphertext)
+    plaintext = unpad(padded_plaintext, BLOCK_SIZE)
+    return plaintext
+
+def encrypt_cbc(plaintext, key, iv):
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    padded_plaintext = pad(plaintext, BLOCK_SIZE)
+    ciphertext = cipher.encrypt(padded_plaintext)
+    return ciphertext
+
+def decrypt_cbc(ciphertext, key, iv):
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    padded_plaintext = cipher.decrypt(ciphertext)
+    plaintext = unpad(padded_plaintext, BLOCK_SIZE)
+    return plaintext
+
+def encrypt_cfb(plaintext, key, iv):
+    cipher = AES.new(key, AES.MODE_CFB, iv, segment_size=BLOCK_SIZE*8)
+    ciphertext = cipher.encrypt(plaintext)
+    return ciphertext
+
+def decrypt_cfb(ciphertext, key, iv):
+    cipher = AES.new(key, AES.MODE_CFB, iv, segment_size=BLOCK_SIZE*8)
+    plaintext = cipher.decrypt(ciphertext)
+    return plaintext
+
+def main():
+    # Generate random key and IV
+    key = get_random_bytes(16)  # AES-128
+    iv = get_random_bytes(BLOCK_SIZE)
+    
+    plaintext = b"This is a secret message."
+    
+    # ECB mode
+    ciphertext_ecb = encrypt_ecb(plaintext, key)
+    decrypted_ecb = decrypt_ecb(ciphertext_ecb, key)
+    print(f"ECB Mode:\nCiphertext: {ciphertext_ecb}\nDecrypted: {decrypted_ecb}")
+    
+    # CBC mode
+    ciphertext_cbc = encrypt_cbc(plaintext, key, iv)
+    decrypted_cbc = decrypt_cbc(ciphertext_cbc, key, iv)
+    print(f"CBC Mode:\nCiphertext: {ciphertext_cbc}\nDecrypted: {decrypted_cbc}")
+    
+    # CFB mode
+    ciphertext_cfb = encrypt_cfb(plaintext, key, iv)
+    decrypted_cfb = decrypt_cfb(ciphertext_cfb, key, iv)
+    print(f"CFB Mode:\nCiphertext: {ciphertext_cfb}\nDecrypted: {decrypted_cfb}")
+
+if __name__ == "__main__":
+    main()
