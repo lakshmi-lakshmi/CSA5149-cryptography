@@ -1,0 +1,57 @@
+import string
+import itertools
+
+def letter_frequency(text):
+  """Calculates letter frequencies in a text"""
+  freq = {}
+  for char in text.lower():
+    if char in string.ascii_lowercase:
+      freq[char] = freq.get(char, 0) + 1
+  total = sum(freq.values())
+  for char in freq:
+    freq[char] /= total
+  return freq
+
+def chi_squared(freq1, freq2):
+  """Calculates the chi-squared value between two frequency distributions"""
+  chi_square = 0
+  for char in freq1:
+    if char in freq2:
+      chi_square += (freq1[char] - freq2[char])**2 / freq2[char]
+  return chi_square
+
+def decrypt(ciphertext, mapping):
+  """Decrypts the ciphertext using the given mapping"""
+  plaintext = ""
+  for char in ciphertext:
+    if char.isalpha():
+      plaintext += mapping.get(char, char)
+    else:
+      plaintext += char
+  return plaintext
+
+def frequency_attack(ciphertext, num_plaintexts=10):
+  """Performs a frequency attack on the monoalphabetic substitution cipher"""
+  ciphertext_freq = letter_frequency(ciphertext)
+  english_freq = letter_frequency("this is a test string with varying letter frequencies")
+
+  alphabet = list(string.ascii_lowercase)
+  mappings = list(itertools.permutations(alphabet))
+
+  results = []
+  for mapping in mappings:
+    mapping = dict(zip(alphabet, mapping))
+    plaintext = decrypt(ciphertext, mapping)
+    plaintext_freq = letter_frequency(plaintext)
+    chi_square = chi_squared(plaintext_freq, english_freq)
+    results.append((chi_square, plaintext))
+
+  results.sort()
+  return [text for _, text in results[:num_plaintexts]]
+
+if __name__ == "__main__":
+  ciphertext = input("Enter ciphertext: ")
+  num_plaintexts = int(input("Enter number of plaintexts: "))
+  plaintexts = frequency_attack(ciphertext, num_plaintexts)
+  for i, plaintext in enumerate(plaintexts):
+    print(f"{i+1}. {plaintext}")
