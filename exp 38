@@ -1,0 +1,54 @@
+import numpy as np
+
+def text_to_matrix(text, size):
+    """Converts text to a numerical matrix"""
+    text = text.upper()
+    matrix = np.zeros((len(text) // size, size), dtype=int)
+    for i in range(len(text) // size):
+        for j in range(size):
+            matrix[i][j] = ord(text[i*size+j]) - ord('A')
+    return matrix
+
+def matrix_to_text(matrix):
+    """Converts a numerical matrix to text"""
+    text = ""
+    for row in matrix:
+        for col in row:
+            text += chr(col + ord('A'))
+    return text
+
+def hill_encrypt(plaintext, key):
+    """Encrypts plaintext using a Hill cipher"""
+    plaintext_matrix = text_to_matrix(plaintext, len(key))
+    ciphertext_matrix = np.dot(plaintext_matrix, key) % 26
+    return matrix_to_text(ciphertext_matrix)
+
+def known_plaintext_attack(plaintexts, ciphertexts, key_size):
+    """Performs a known plaintext attack on the Hill cipher"""
+    num_pairs = len(plaintexts)
+    plaintext_matrix = text_to_matrix(''.join(plaintexts), key_size)
+    ciphertext_matrix = text_to_matrix(''.join(ciphertexts), key_size)
+
+    # Set up the linear equation system
+    A = plaintext_matrix.reshape(num_pairs * key_size, key_size)
+    B = ciphertext_matrix.reshape(num_pairs * key_size, 1)
+
+    # Solve for the key matrix
+    key_matrix = np.linalg.solve(A, B) % 26
+    key_matrix = key_matrix.reshape(key_size, key_size)
+
+    return key_matrix
+
+# Example usage
+plaintext = "ATTACKATDAWN"
+key = np.array([[17, 17], [20, 21]])
+ciphertext = hill_encrypt(plaintext, key)
+
+print("Ciphertext:", ciphertext)
+
+# Assuming we know some plaintext-ciphertext pairs
+known_plaintexts = ["AT", "DA"]
+known_ciphertexts = ["BS", "NL"]
+
+recovered_key = known_plaintext_attack(known_plaintexts, known_ciphertexts, 2)
+print("Recovered key:", recovered_key)
