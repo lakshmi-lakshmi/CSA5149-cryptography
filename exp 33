@@ -1,0 +1,40 @@
+import random
+
+def generate_key(length):
+  """Generates a random key of specified length"""
+  return ''.join(random.choice('01') for _ in range(length))
+
+def simple_encrypt(plaintext, key):
+  """Simplified DES encryption"""
+  ciphertext = ""
+  for char in plaintext:
+    # Convert character to binary
+    binary_char = bin(ord(char))[2:].zfill(8)
+    # XOR with key (simplified substitution)
+    encrypted_char = int(binary_char, 2) ^ int(key, 2)
+    # Convert back to character
+    ciphertext += chr(encrypted_char)
+  return ciphertext
+
+def simple_decrypt(ciphertext, key):
+  """Simplified DES decryption"""
+  plaintext = ""
+  for char in ciphertext:
+    # Convert character to binary
+    binary_char = bin(ord(char))[2:].zfill(8)
+    # XOR with key (simplified substitution)
+    decrypted_char = int(binary_char, 2) ^ int(key, 2)
+    # Convert back to character
+    plaintext += chr(decrypted_char)
+  return plaintext
+
+# Example usage
+plaintext = "hello"
+key = generate_key(8)  # Simplified to 8 bits for demonstration
+
+ciphertext = simple_encrypt(plaintext, key)
+decrypted_text = simple_decrypt(ciphertext, key)
+
+print("Plaintext:", plaintext)
+print("Ciphertext:", ciphertext)
+print("Decrypted text:", decrypted_text)
