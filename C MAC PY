@@ -1,0 +1,29 @@
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.backends import default_backend
+
+def cmac(key, message):
+    cipher = Cipher(algorithms.AES(key), modes.ECB(), backend=default_backend())
+    encryptor = cipher.encryptor()
+
+    block_size = algorithms.AES.block_size // 8  # Block size in bytes
+
+    # Padding
+    padding_length = block_size - (len(message) % block_size)
+    padded_message = message + bytes([padding_length] * padding_length)
+
+    # CMAC Initialization
+    mac_value = bytes(block_size)
+    for i in range(0, len(padded_message), block_size):
+        block = padded_message[i:i + block_size]
+        mac_value = bytes(x ^ y for x, y in zip(mac_value, block))
+        mac_value = encryptor.update(mac_value)
+
+    return mac_value
+
+# Example usage
+key = b'Sixteen byte key'  # 16 bytes key for AES
+message = b'Hello, World! This is a test message.'
+
+mac = cmac(key, message)
+print("CMAC:", mac.hex())
