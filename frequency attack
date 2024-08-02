@@ -1,0 +1,16 @@
+from collections import Counter
+import string
+
+def frequency_analysis(text):
+    text = text.upper()
+    frequency = Counter(c for c in text if c in string.ascii_uppercase)
+    return frequency
+
+def print_frequency(freq):
+    for char, count in sorted(freq.items()):
+        print(f"{char}: {count}")
+
+if __name__ == "__main__":
+    ciphertext = "VJKUBKUBCBOGUUCIG"
+    freq = frequency_analysis(ciphertext)
+    print_frequency(freq)
