@@ -1,0 +1,25 @@
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import padding
+from cryptography.hazmat.backends import default_backend
+
+def cbc_mac(key, plaintext):
+    # Initialize the block cipher in CBC mode with an all-zero IV
+    cipher = Cipher(algorithms.AES(key), modes.CBC(bytes(16)), backend=default_backend())
+    encryptor = cipher.encryptor()
+    
+    # Pad plaintext to be a multiple of the block size
+    padder = padding.PKCS7(algorithms.AES.block_size).padder()
+    padded_plaintext = padder.update(plaintext) + padder.finalize()
+    
+    # Encrypt the padded plaintext to get the CBC MAC
+    ciphertext = encryptor.update(padded_plaintext) + encryptor.finalize()
+    
+    # The CBC MAC is the final block of the ciphertext
+    return ciphertext[-16:]  # AES block size is 16 bytes
+
+# Example usage
+key = b'Sixteen byte key'  # 16 bytes key for AES
+plaintext = b'Hello, World! This is a test message.'
+
+mac = cbc_mac(key, plaintext)
+print("CBC MAC:", mac.hex())
