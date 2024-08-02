@@ -1,0 +1,36 @@
+from Crypto.Cipher import DES
+from Crypto.Util import Counter
+import binascii
+
+def des_encrypt_ctr(plaintext, key, nonce):
+    # Ensure nonce is 4 bytes, the remaining 4 bytes are for the counter
+    if len(nonce) != 4:
+        raise ValueError("Nonce must be 4 bytes")
+    
+    ctr = Counter.new(32, prefix=nonce, initial_value=0)
+    cipher = DES.new(key, DES.MODE_CTR, counter=ctr)
+    encrypted_text = cipher.encrypt(plaintext.encode('utf-8'))
+    return binascii.hexlify(encrypted_text).decode('utf-8')
+
+def des_decrypt_ctr(ciphertext, key, nonce):
+    if len(nonce) != 4:
+        raise ValueError("Nonce must be 4 bytes")
+    
+    ctr = Counter.new(32, prefix=nonce, initial_value=0)
+    cipher = DES.new(key, DES.MODE_CTR, counter=ctr)
+    ciphertext_bytes = binascii.unhexlify(ciphertext)
+    decrypted_text = cipher.decrypt(ciphertext_bytes)
+    return decrypted_text.decode('utf-8')
+
+if __name__ == "__main__":
+    key = b'12345678'  # DES key size: 8 bytes
+    nonce = b'1234'    # Nonce: 4 bytes (remaining 4 bytes are for the counter)
+
+    plaintext = "Hello, World!"
+    print("Original Text:", plaintext)
+
+    # CTR Mode
+    encrypted_ctr = des_encrypt_ctr(plaintext, key, nonce)
+    print("CTR Encrypted Text:", encrypted_ctr)
+    decrypted_ctr = des_decrypt_ctr(encrypted_ctr, key, nonce)
+    print("CTR Decrypted Text:", decrypted_ctr)
