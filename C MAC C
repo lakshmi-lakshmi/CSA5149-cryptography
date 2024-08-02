@@ -1,0 +1,36 @@
+#include <openssl/cmac.h>
+#include <stdio.h>
+#include <string.h>
+
+void cmac(const unsigned char *key, const unsigned char *message, size_t message_len, unsigned char *mac) {
+    CMAC_CTX *ctx = CMAC_CTX_new();
+    size_t mac_len;
+
+    // Initialize CMAC context
+    CMAC_Init(ctx, key, 16, EVP_aes_128_cbc(), NULL);
+
+    // Update CMAC with message
+    CMAC_Update(ctx, message, message_len);
+
+    // Finalize CMAC and get the MAC value
+    CMAC_Final(ctx, mac, &mac_len);
+
+    // Clean up
+    CMAC_CTX_free(ctx);
+}
+
+int main() {
+    unsigned char key[16] = "Sixteen byte key";  // 16 bytes key for AES
+    unsigned char message[] = "Hello, World! This is a test message.";
+    unsigned char mac[16];
+
+    cmac(key, message, strlen((char *)message), mac);
+
+    printf("CMAC: ");
+    for (int i = 0; i < 16; i++) {
+        printf("%02x", mac[i]);
+    }
+    printf("\n");
+
+    return 0;
+}
