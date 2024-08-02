@@ -1,0 +1,84 @@
+import struct
+
+class RC5:
+    def __init__(self, key, w=32, r=12, b=16):
+        self.w = w
+        self.r = r
+        self.b = b
+        self.key = key
+        self.key_schedule = self.key_schedule()
+
+    def key_schedule(self):
+        P = 0xB7E15163
+        Q = 0x9E3779B9
+        c = (len(self.key) + self.b - 1) // self.b
+        L = [0] * c
+        key_schedule = [0] * (2 * (self.r + 1))
+
+        # Load key into L
+        for i in range(len(self.key)):
+            L[i // self.b] = (L[i // self.b] << 8) | self.key[i]
+
+        # Initialize S array
+        key_schedule[0] = P
+        for i in range(1, len(key_schedule)):
+            key_schedule[i] = (key_schedule[i - 1] + Q) % (1 << self.w)
+
+        # Mixing
+        A = B = 0
+        v = 3 * max(c, len(key_schedule))
+        i = j = 0
+        for _ in range(v):
+            A = key_schedule[i] = (key_schedule[i] + A + B) % (1 << self.w)
+            B = L[j] = (L[j] + A + B) % (1 << self.w)
+            i = (i + 1) % len(key_schedule)
+            j = (j + 1) % len(L)
+
+        return key_schedule
+
+    def encrypt(self, plaintext):
+        A, B = struct.unpack('<2L', plaintext)
+        A = (A + self.key_schedule[0]) % (1 << self.w)
+        B = (B + self.key_schedule[1]) % (1 << self.w)
+        for i in range(1, self.r + 1):
+            A = ((A ^ B) + self.key_schedule[2 * i]) % (1 << self.w)
+            B = ((B ^ A) + self.key_schedule[2 * i + 1]) % (1 << self.w)
+
+            # Adjust for valid shift amounts
+            shift_A = B % self.w
+            shift_B = A % self.w
+
+            A = ((A << shift_A) | (A >> (self.w - shift_A))) % (1 << self.w)
+            B = ((B << shift_B) | (B >> (self.w - shift_B))) % (1 << self.w)
+
+        return struct.pack('<2L', A, B)
+
+    def decrypt(self, ciphertext):
+        A, B = struct.unpack('<2L', ciphertext)
+        for i in range(self.r, 0, -1):
+            # Adjust for valid shift amounts
+            shift_A = B % self.w
+            shift_B = A % self.w
+
+            A = ((A >> shift_A) | (A << (self.w - shift_A))) % (1 << self.w)
+            B = ((B >> shift_B) | (B << (self.w - shift_B))) % (1 << self.w)
+
+            B = (B - self.key_schedule[2 * i + 1]) % (1 << self.w)
+            A = (A - self.key_schedule[2 * i]) % (1 << self.w)
+
+        B = (B - self.key_schedule[1]) % (1 << self.w)
+        A = (A - self.key_schedule[0]) % (1 << self.w)
+
+        return struct.pack('<2L', A, B)
+
+# Example usage
+key = b'SuperSecretKey'  # 16 bytes key
+rc5 = RC5(key)
+
+plaintext = struct.pack('<2L', 0x12345678, 0x9ABCDEF0)
+ciphertext = rc5.encrypt(plaintext)
+decrypted_plaintext = rc5.decrypt(ciphertext)
+
+print("Plaintext:", struct.unpack('<2L', plaintext))
+print("Ciphertext:", struct.unpack('<2L', ciphertext))
+print("Decrypted Plaintext:", struct.unpack('<2L', decrypted_plaintext))
