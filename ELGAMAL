@@ -1,0 +1,38 @@
+from Crypto.Util.number import inverse, getPrime
+import random
+
+def elgamal_keygen(bits=512):
+    p = getPrime(bits)
+    g = random.randint(2, p-1)
+    x = random.randint(1, p-2)
+    y = pow(g, x, p)
+    return (p, g, y), x
+
+def elgamal_encrypt(public_key, plaintext):
+    p, g, y = public_key
+    k = random.randint(1, p-2)
+    c1 = pow(g, k, p)
+    s = pow(y, k, p)
+    c2 = (plaintext * s) % p
+    return (c1, c2)
+
+def elgamal_decrypt(private_key, ciphertext):
+    p, g, y = public_key
+    x = private_key
+    c1, c2 = ciphertext
+    s = pow(c1, x, p)
+    s_inv = inverse(s, p)
+    plaintext = (c2 * s_inv) % p
+    return plaintext
+
+# Example usage
+public_key, private_key = elgamal_keygen()
+plaintext = 12345  # Example plaintext message
+ciphertext = elgamal_encrypt(public_key, plaintext)
+decrypted_plaintext = elgamal_decrypt(private_key, ciphertext)
+
+print("Public Key:", public_key)
+print("Private Key:", private_key)
+print("Plaintext:", plaintext)
+print("Ciphertext:", ciphertext)
+print("Decrypted Plaintext:", decrypted_plaintext)
