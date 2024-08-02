@@ -1,0 +1,31 @@
+def encrypt_additive_cipher(plaintext, shift):
+    encrypted_text = ''
+    for char in plaintext.lower():
+        if char.isalpha():
+            shifted_char = chr(((ord(char) - ord('a') + shift) % 26) + ord('a'))
+            encrypted_text += shifted_char
+        else:
+            encrypted_text += char
+    return encrypted_text
+
+def decrypt_additive_cipher(ciphertext, shift):
+    decrypted_text = ''
+    for char in ciphertext.lower():
+        if char.isalpha():
+            shifted_char = chr(((ord(char) - ord('a') - shift) % 26) + ord('a'))
+            decrypted_text += shifted_char
+        else:
+            decrypted_text += char
+    return decrypted_text
+
+# Sample usage
+plaintext = "Hello, World!"
+shift = 3
+
+# Encrypt
+encrypted_text = encrypt_additive_cipher(plaintext, shift)
+print("Encrypted Text:", encrypted_text)
+
+# Decrypt
+decrypted_text = decrypt_additive_cipher(encrypted_text, shift)
+print("Decrypted Text:", decrypted_text)
