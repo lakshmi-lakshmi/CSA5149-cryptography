@@ -1,32 +1,41 @@
-from math import gcd
+from Crypto.Util.number import getPrime, inverse, GCD
+import random
 
-# defining a function to perform RSA approch
-def RSA(p: int, q: int, message: int):
-    # calculating n
+# Key Generation
+def generate_keys(bit_length=1024):
+    p = getPrime(bit_length)
+    q = getPrime(bit_length)
     n = p * q
-
-    # calculating totient, t
-    t = (p - 1) * (q - 1)
-
-    # selecting public key, e
-    for i in range(2, t):
-        if gcd(i, t) == 1:
-            e = i
-            break
+    phi_n = (p - 1) * (q - 1)
     
-    # selecting private key, d
-    j = 0
-    while True:
-        if (j * e) % t == 1:
-            d = j
-            break
-        j += 1
+    e = random.randint(1, phi_n - 1)
+    while GCD(e, phi_n) != 1:
+        e = random.randint(1, phi_n - 1)
+    
+    d = inverse(e, phi_n)
+    
+    return (e, n), (d, n)
 
-    # performing encryption
-    ct = (message ** e) % n
-    print(f"Encrypted message is {ct}")
+# Encryption
+def encrypt(plaintext, public_key):
+    e, n = public_key
+    plaintext_int = int.from_bytes(plaintext.encode(), 'big')
+    ciphertext_int = pow(plaintext_int, e, n)
+    return ciphertext_int
 
-    # performing decryption
-    mes = (ct ** d) % n
-    print(f"Decrypted message is {mes}")
-rsa algorithm
+# Decryption
+def decrypt(ciphertext, private_key):
+    d, n = private_key
+    plaintext_int = pow(ciphertext, d, n)
+    plaintext = plaintext_int.to_bytes((plaintext_int.bit_length() + 7) // 8, 'big').decode()
+    return plaintext
+
+# Example usage
+public_key, private_key = generate_keys()
+
+plaintext = "Hello, RSA!"
+ciphertext = encrypt(plaintext, public_key)
+print("Encrypted:", ciphertext)
+
+decrypted = decrypt(ciphertext, private_key)
+print("Decrypted:", decrypted)
