@@ -1,0 +1,31 @@
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
+import base64
+
+# Function to encrypt data using AES in ECB mode
+def encrypt_ecb(plaintext, key):
+    cipher = AES.new(key, AES.MODE_ECB)
+    padded_plaintext = pad(plaintext.encode(), AES.block_size)
+    ciphertext = cipher.encrypt(padded_plaintext)
+    return base64.b64encode(ciphertext).decode()
+
+# Function to decrypt data using AES in ECB mode
+def decrypt_ecb(ciphertext, key):
+    cipher = AES.new(key, AES.MODE_ECB)
+    ciphertext = base64.b64decode(ciphertext)
+    padded_plaintext = cipher.decrypt(ciphertext)
+    plaintext = unpad(padded_plaintext, AES.block_size).decode()
+    return plaintext
+
+# Example usage
+if __name__ == "__main__":
+    key = b'Sixteen byte key'  # AES key must be either 16, 24, or 32 bytes long
+    plaintext = 'Hello, ECB mode!'
+
+    # Encrypt
+    encrypted_text = encrypt_ecb(plaintext, key)
+    print(f'Encrypted Text: {encrypted_text}')
+
+    # Decrypt
+    decrypted_text = decrypt_ecb(encrypted_text, key)
+    print(f'Decrypted Text: {decrypted_text}')
